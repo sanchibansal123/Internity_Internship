@@ -669,7 +669,7 @@ public class BankingSystem
 			connection = DriverManager.getConnection("jdbc:oracle:thin:@VizarD:1521:xe","hr","sanchi");
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			connection.setAutoCommit(false);
-			BankingSystem cust1;
+			BankingSystem customer;
 			
 			
 			
@@ -691,12 +691,12 @@ public class BankingSystem
 				switch (ch) 
 				{
 					case 1:
-						cust1 = new BankingSystem();
-						cust1.createAccount();
+						customer = new BankingSystem();
+						customer.createAccount();
 						break;
 						
 					case 2:
-						cust1 = new BankingSystem();
+						customer = new BankingSystem();
 						
 						int acc;
 						
@@ -725,10 +725,10 @@ public class BankingSystem
 							else break;
 						}
 						
-						int num = cust1.oldUser(acc, p);
+						int num = customer.oldUser(acc, p);
 						
 						if (num == 1) {
-							cust1 = null;
+							customer = null;
 							ch = 1;
 							continue;
 						}
