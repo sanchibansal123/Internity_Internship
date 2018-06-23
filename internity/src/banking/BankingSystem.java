@@ -324,6 +324,8 @@ public class BankingSystem
 				try 
 				{
 					camount = Double.parseDouble(br.readLine());
+					if(camount<=0)
+						throw new NumberFormatException();
 					break;
 				}catch (NumberFormatException e) {System.out.println("Enter valid amount");}
 			}
@@ -429,30 +431,74 @@ public class BankingSystem
 			connection = DriverManager.getConnection("jdbc:oracle:thin:@VizarD:1521:xe","hr","sanchi");
 			connection.setAutoCommit(false);
 			
-			System.out.println("Enter the amount to be debited");
-			double damount = Double.parseDouble(br.readLine());
-			
-			if(damount>0)
+			double damount;
+			while (true) 
 			{
-				if(damount<=this.currentBal)
+				System.out.println("Enter the amount to be debited");
+				try 
 				{
-					if(damount<30000)
-						this.currentBal -= damount;
+					damount = Double.parseDouble(br.readLine());
+					if(damount>0){
+						if(damount<=this.currentBal){
+							if(damount<30000){
+								this.currentBal -= damount;
+								break;
+							}
+							else
+								System.out.println("Amount more than 30000 can't be withdrawn");
+						}
+						else
+							System.out.println("Not enough to debit money");
+					}
 					else
-						System.out.println("Amount more than 30000 can't be withdrawn");
+						System.out.println("Negative transaction not allowed");
+					
+				} 
+				catch (NumberFormatException e) 
+				{
+					System.out.println("Invalid Debit Amount");
 				}
-				else
-					System.out.println("Not enough to debit money");
 			}
-			else
-				System.out.println("Negative transaction not allowed");
+			
+			
 				
+			String part = new String();
+			while(true)
+			{
+				System.out.println("Enter the particulars");
+				
+				part = new String(br.readLine());
+				if(part.length()==0)
+					System.out.println("Particulars can't be empty");
+				
+				else if(part.length()>15)
+					System.out.println("Particulars can have maximum 15 characters");
+				
+				else 
+					break;
+			}
 			
-			System.out.println("Enter the particulars");
-			String part = new String(br.readLine());
 			
-			System.out.println("Enter the cheque number if any (if not then enter '0')");
-			int cheque = Integer.parseInt(br.readLine());
+			int cheque;
+			if(part.equalsIgnoreCase("cash"))
+					cheque = 0;
+			else
+			{
+				System.out.println("Enter the cheque number if any (if not then enter '0')");
+				while (true) 
+				{
+					try 
+					{
+						cheque = Integer.parseInt(br.readLine());
+						break;
+					} 
+					catch (NumberFormatException e) 
+					{
+						System.out.println("Enter valid cheque number");
+					}
+				}
+			}
+			
 					
 			sp1 = connection.setSavepoint();
 			
@@ -462,7 +508,7 @@ public class BankingSystem
 			pst04.setInt(2, cheque);
 			pst04.setString(3, this.date);
 			pst04.setString(4, this.time);
-			pst04.setDouble(5, -1);
+			pst04.setDouble(5, -1.0);
 			pst04.setDouble(6, damount);
 			pst04.setDouble(7, this.currentBal);
 			
@@ -515,21 +561,22 @@ public class BankingSystem
 			
 			int n=0;
 			
+			System.out.println("\nparticulars\tcheque_no\tdate\ttime\tcredit\tdebit\ttoal_amt");
 			PreparedStatement pst06 = connection.prepareStatement("Select * from t"+this.accountNo+" order by dates desc, times desc");
 			ResultSet rs06 = pst06.executeQuery();
 			while(rs06.next())
 			{
-				System.out.print(rs06.getString("particulars")+"\t");
+				System.out.print(rs06.getString("particulars")+"\t   ");
 				
 				if(rs06.getInt("cheque_no") == 0)
-					System.out.println("-");
+					System.out.print("-"+"\t");
 				else
 					System.out.print(rs06.getInt("cheque_no")+"\t");
 				System.out.print(rs06.getString("dates")+"\t");
 				System.out.print(rs06.getString("times")+"\t");
 				
 				if(rs06.getInt("credit")==-1)
-					System.out.print("-");
+					System.out.print("-\t");
 				else
 					System.out.print(rs06.getInt("credit")+"\t");
 				
@@ -545,6 +592,8 @@ public class BankingSystem
 			
 			if(n==0)
 				System.out.println("No Transactions performed till now!\n\n");
+			
+			connection.commit();
 		} 
 		catch (SQLException e) 
 		{
@@ -629,7 +678,16 @@ public class BankingSystem
 				System.out.println("Enter the choice");
 				System.out.println("1. New User");
 				System.out.println("2. Old user");
-				int ch = Integer.parseInt(br.readLine());
+				int ch=0;
+				try 
+				{
+					ch = Integer.parseInt(br.readLine());
+				} 
+				catch (NumberFormatException e1) {
+					System.out.println("Invalid Input");
+					continue;
+				}
+				
 				switch (ch) 
 				{
 					case 1:
@@ -641,13 +699,20 @@ public class BankingSystem
 						cust1 = new BankingSystem();
 						
 						int acc;
-						System.out.println("Enter the account Number");
+						
 						while(true)
 						{
-							acc = Integer.parseInt(br.readLine());
-							if(String.valueOf(acc).length()>10)
-								System.out.println("Invalid account no");
-							else break;
+							try 
+							{
+								System.out.println("Enter the account Number");
+								acc = Integer.parseInt(br.readLine());
+								if(String.valueOf(acc).length()>10)
+									System.out.println("Invalid account no");
+								else break;
+							} catch (NumberFormatException e) {
+								System.out.println("Inavlid account number");
+							}
+							
 						}
 						
 						System.out.println("Enter the password");
