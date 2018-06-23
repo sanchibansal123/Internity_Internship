@@ -41,7 +41,7 @@ public class UDPServer
 				ds.send(dp2);
 			} catch (NumberFormatException e) 
 			{
-				b2 = String.valueOf("Invalid input").getBytes();
+				b2 = String.valueOf("Please send a proper number").getBytes();
 				dp2 = new DatagramPacket(b2,b2.length,ia,dp.getPort());
 				ds.send(dp2);
 			}
